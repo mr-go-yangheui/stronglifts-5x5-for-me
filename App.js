@@ -41,6 +41,13 @@ function completeSession(results){
   state.history.push(record);
   state.sessionCount++;
   saveState(state);
+}        state.failCount[name]=0;
+      }
+    }
+  });
+  state.history.push(record);
+  state.sessionCount++;
+  saveState(state);
 }    const w = state.weights[name];
     record.exercises.push({ name, weight: w, success });
     if (success) {
