@@ -99,42 +99,4 @@ function finishWorkout(){
 }
 </script>
 </body>
-</html>window.onload=function(){
-  var state=loadState();
-  var exercises=getTodayWorkout(state.sessionCount);
-  var type=exercises===WORKOUT_A?"A":"B";
-  var results={};
-  exercises.forEach(function(n){results[n]=true;});
-
-  var today=new Date();
-  document.getElementById("date-info").textContent=today.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"short"});
-  document.getElementById("workout-badge").textContent="워크아웃 "+type;
-
-  var list=document.getElementById("exercise-list");
-  exercises.forEach(function(name){
-    var sets=name==="deadlift"?"1세트 × 5회":"5세트 × 5회";
-    var failCnt=state.failCount[name]||0;
-    var failMsg=failCnt>0?"<div class='fail-warning'>⚠️ "+failCnt+"회 연속 실패 중</div>":"";
-    var card=document.createElement("div");
-    card.className="exercise-card";
-    card.innerHTML="<h3>"+EXERCISE_NAMES[name]+"</h3><div class='weight'>"+state.weights[name]+" kg</div><div class='sets'>"+sets+"</div>"+failMsg+"<div class='toggle-row'><button class='toggle-btn btn-success active' id='btn_s_"+name+"' onclick="setResult('"+name+"',true)">✅ 성공</button><button class='toggle-btn btn-fail' id='btn_f_"+name+"' onclick="setResult('"+name+"',false)">❌ 실패</button></div>";
-    list.appendChild(card);
-  });
-
-  window.setResult=function(name,success){
-    results[name]=success;
-    document.getElementById("btn_s_"+name).className="toggle-btn btn-success"+(success?" active":"");
-    document.getElementById("btn_f_"+name).className="toggle-btn btn-fail"+(!success?" active":"");
-  };
-
-  window.finishWorkout=function(){
-    var res=exercises.map(function(name){return{name:name,success:results[name]};});
-    completeSession(res);
-    alert("💾 저장 완료!
-다음 운동 중량이 업데이트되었습니다.");
-    location.reload();
-  };
-};
-</script>
-</body>
 </html>
