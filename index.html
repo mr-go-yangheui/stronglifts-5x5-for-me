@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>StrongLifts 5x5</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -11,9 +11,9 @@ h1{text-align:center;font-size:22px;margin:16px 0 4px;color:#ff6b6b}
 #date-info{text-align:center;color:#aaa;font-size:13px;margin-bottom:16px}
 #workout-badge{text-align:center;background:#ff6b6b;color:white;border-radius:20px;padding:6px 24px;font-weight:bold;font-size:15px;width:fit-content;margin:0 auto 20px;display:block}
 .exercise-card{background:#16213e;border-radius:14px;padding:16px;margin-bottom:14px;border-left:4px solid #ff6b6b}
-.exercise-card h3{font-size:17px;margin-bottom:6px;color:#ff6b6b;text-transform:uppercase}
-.exercise-card .weight{font-size:26px;font-weight:bold;margin-bottom:10px}
-.exercise-card .sets{color:#aaa;font-size:13px;margin-bottom:12px}
+.exercise-card h3{font-size:17px;margin-bottom:6px;color:#ff6b6b}
+.weight{font-size:26px;font-weight:bold;margin-bottom:10px}
+.sets{color:#aaa;font-size:13px;margin-bottom:12px}
 .toggle-row{display:flex;gap:10px}
 .toggle-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
 .btn-success{background:#2ecc71;color:white}
@@ -34,8 +34,42 @@ h1{text-align:center;font-size:22px;margin:16px 0 4px;color:#ff6b6b}
 <a class="nav-link" href="history.html">📋 운동 기록 보기</a>
 <script src="App.js"></script>
 <script>
-const state=loadState();
-const exercises=getTodayWorkout(state.sessionCount);
-const type=exercises===WORKOUT_A?"A":"B";
-const results={};
-exercises.forEach(n=>results
+window.onload=function(){
+  var state=loadState();
+  var exercises=getTodayWorkout(state.sessionCount);
+  var type=exercises===WORKOUT_A?"A":"B";
+  var results={};
+  exercises.forEach(function(n){results[n]=true;});
+
+  var today=new Date();
+  document.getElementById("date-info").textContent=today.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"short"});
+  document.getElementById("workout-badge").textContent="워크아웃 "+type;
+
+  var list=document.getElementById("exercise-list");
+  exercises.forEach(function(name){
+    var sets=name==="deadlift"?"1세트 × 5회":"5세트 × 5회";
+    var failCnt=state.failCount[name]||0;
+    var failMsg=failCnt>0?"<div class='fail-warning'>⚠️ "+failCnt+"회 연속 실패 중</div>":"";
+    var card=document.createElement("div");
+    card.className="exercise-card";
+    card.innerHTML="<h3>"+EXERCISE_NAMES[name]+"</h3><div class='weight'>"+state.weights[name]+" kg</div><div class='sets'>"+sets+"</div>"+failMsg+"<div class='toggle-row'><button class='toggle-btn btn-success active' id='btn_s_"+name+"' onclick="setResult('"+name+"',true)">✅ 성공</button><button class='toggle-btn btn-fail' id='btn_f_"+name+"' onclick="setResult('"+name+"',false)">❌ 실패</button></div>";
+    list.appendChild(card);
+  });
+
+  window.setResult=function(name,success){
+    results[name]=success;
+    document.getElementById("btn_s_"+name).className="toggle-btn btn-success"+(success?" active":"");
+    document.getElementById("btn_f_"+name).className="toggle-btn btn-fail"+(!success?" active":"");
+  };
+
+  window.finishWorkout=function(){
+    var res=exercises.map(function(name){return{name:name,success:results[name]};});
+    completeSession(res);
+    alert("💾 저장 완료!
+다음 운동 중량이 업데이트되었습니다.");
+    location.reload();
+  };
+};
+</script>
+</body>
+</html>
