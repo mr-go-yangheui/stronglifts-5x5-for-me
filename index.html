@@ -15,12 +15,12 @@ h1{text-align:center;font-size:22px;margin:16px 0 4px;color:#ff6b6b}
 .weight{font-size:26px;font-weight:bold;margin-bottom:10px}
 .sets{color:#aaa;font-size:13px;margin-bottom:12px}
 .toggle-row{display:flex;gap:10px}
-.toggle-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
+.toggle-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:bold}
 .btn-success{background:#2ecc71;color:white}
 .btn-fail{background:#555;color:#aaa}
 .btn-success.active{background:#27ae60}
 .btn-fail.active{background:#e74c3c;color:white}
-#complete-btn{width:100%;padding:16px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-size:17px;font-weight:bold;margin-top:10px;cursor:pointer}
+#complete-btn{width:100%;padding:16px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-size:17px;font-weight:bold;margin-top:10px}
 .nav-link{display:block;text-align:center;margin-top:14px;color:#aaa;font-size:14px;text-decoration:none;padding:10px}
 .fail-warning{color:#e74c3c;font-size:12px;margin-top:4px}
 </style>
@@ -32,9 +32,74 @@ h1{text-align:center;font-size:22px;margin:16px 0 4px;color:#ff6b6b}
 <div id="exercise-list"></div>
 <button id="complete-btn" onclick="finishWorkout()">✅ 오늘 운동 완료</button>
 <a class="nav-link" href="history.html">📋 운동 기록 보기</a>
-<script src="App.js"></script>
 <script>
-window.onload=function(){
+var DEFAULT_WEIGHTS={squat:20,bench:20,row:20,ohp:20,deadlift:60};
+var INCREMENT={squat:2.5,bench:2.5,row:2.5,ohp:2.5,deadlift:5};
+var WORKOUT_A=["squat","bench","row"];
+var WORKOUT_B=["squat","ohp","deadlift"];
+var NAMES={squat:"스쿼트",bench:"벤치프레스",row:"바벨 로우",ohp:"오버헤드프레스",deadlift:"데드리프트"};
+
+function loadState(){
+  var s=localStorage.getItem("sl5x5");
+  return s?JSON.parse(s):{sessionCount:0,weights:{squat:20,bench:20,row:20,ohp:20,deadlift:60},failCount:{squat:0,bench:0,row:0,ohp:0,deadlift:0},history:[]};
+}
+function saveState(s){localStorage.setItem("sl5x5",JSON.stringify(s));}
+
+var state=loadState();
+var exercises=state.sessionCount%2===0?WORKOUT_A:WORKOUT_B;
+var type=exercises===WORKOUT_A?"A":"B";
+var results={};
+exercises.forEach(function(n){results[n]=true;});
+
+var today=new Date();
+document.getElementById("date-info").textContent=today.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"short"});
+document.getElementById("workout-badge").textContent="워크아웃 "+type;
+
+var list=document.getElementById("exercise-list");
+exercises.forEach(function(name){
+  var sets=name==="deadlift"?"1세트 × 5회":"5세트 × 5회";
+  var failCnt=state.failCount[name]||0;
+  var failMsg=failCnt>0?"<div class='fail-warning'>⚠️ "+failCnt+"회 연속 실패 중</div>":"";
+  var card=document.createElement("div");
+  card.className="exercise-card";
+  card.innerHTML="<h3>"+NAMES[name]+"</h3><div class='weight'>"+state.weights[name]+" kg</div><div class='sets'>"+sets+"</div>"+failMsg+"<div class='toggle-row'><button class='toggle-btn btn-success active' id='s_"+name+"' onclick="pick('"+name+"',true)">✅ 성공</button><button class='toggle-btn btn-fail' id='f_"+name+"' onclick="pick('"+name+"',false)">❌ 실패</button></div>";
+  list.appendChild(card);
+});
+
+function pick(name,success){
+  results[name]=success;
+  document.getElementById("s_"+name).className="toggle-btn btn-success"+(success?" active":"");
+  document.getElementById("f_"+name).className="toggle-btn btn-fail"+(!success?" active":"");
+}
+
+function finishWorkout(){
+  var today=new Date().toISOString().slice(0,10);
+  var record={date:today,workout:type,exercises:[]};
+  exercises.forEach(function(name){
+    var w=state.weights[name];
+    var success=results[name];
+    record.exercises.push({name:name,weight:w,success:success});
+    if(success){
+      state.failCount[name]=0;
+      state.weights[name]=Math.round((state.weights[name]+INCREMENT[name])*10)/10;
+    }else{
+      state.failCount[name]++;
+      if(state.failCount[name]>=3){
+        state.weights[name]=Math.round(state.weights[name]*0.9/2.5)*2.5;
+        state.failCount[name]=0;
+      }
+    }
+  });
+  state.history.push(record);
+  state.sessionCount++;
+  saveState(state);
+  alert("💾 저장 완료!
+다음 운동 중량이 업데이트되었습니다.");
+  location.reload();
+}
+</script>
+</body>
+</html>window.onload=function(){
   var state=loadState();
   var exercises=getTodayWorkout(state.sessionCount);
   var type=exercises===WORKOUT_A?"A":"B";
