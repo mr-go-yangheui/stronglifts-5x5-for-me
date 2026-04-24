@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>StrongLifts 5x5</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#1a1a2e;color:#eee;padding:16px;max-width:480px;margin:0 auto}
+h1{text-align:center;font-size:22px;margin:16px 0 4px;color:#ff6b6b}
+#date-info{text-align:center;color:#aaa;font-size:13px;margin-bottom:16px}
+#workout-badge{text-align:center;background:#ff6b6b;color:white;border-radius:20px;padding:6px 24px;font-weight:bold;font-size:15px;width:fit-content;margin:0 auto 20px;display:block}
+.exercise-card{background:#16213e;border-radius:14px;padding:16px;margin-bottom:14px;border-left:4px solid #ff6b6b}
+.exercise-card h3{font-size:17px;margin-bottom:6px;color:#ff6b6b;text-transform:uppercase}
+.exercise-card .weight{font-size:26px;font-weight:bold;margin-bottom:10px}
+.exercise-card .sets{color:#aaa;font-size:13px;margin-bottom:12px}
+.toggle-row{display:flex;gap:10px}
+.toggle-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
+.btn-success{background:#2ecc71;color:white}
+.btn-fail{background:#555;color:#aaa}
+.btn-success.active{background:#27ae60}
+.btn-fail.active{background:#e74c3c;color:white}
+#complete-btn{width:100%;padding:16px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-size:17px;font-weight:bold;margin-top:10px;cursor:pointer}
+.nav-link{display:block;text-align:center;margin-top:14px;color:#aaa;font-size:14px;text-decoration:none;padding:10px}
+.fail-warning{color:#e74c3c;font-size:12px;margin-top:4px}
+</style>
+</head>
+<body>
+<h1>💪 StrongLifts 5×5</h1>
+<div id="date-info"></div>
+<div id="workout-badge"></div>
+<div id="exercise-list"></div>
+<button id="complete-btn" onclick="finishWorkout()">✅ 오늘 운동 완료</button>
+<a class="nav-link" href="history.html">📋 운동 기록 보기</a>
+<script src="App.js"></script>
+<script>
+const state=loadState();
+const exercises=getTodayWorkout(state.sessionCount);
+const type=exercises===WORKOUT_A?"A":"B";
+const results={};
+exercises.forEach(n=>results
