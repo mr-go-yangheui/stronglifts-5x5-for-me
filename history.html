@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>운동 기록</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -28,13 +28,36 @@ h1{text-align:center;font-size:22px;margin:16px 0 20px;color:#ff6b6b}
 <a class="back-link" href="index.html">← 홈으로 돌아가기</a>
 <div id="stats-area"></div>
 <div id="history-list"></div>
-<script src="App.js"></script>
 <script>
-const state=loadState();
+var NAMES={squat:"스쿼트",bench:"벤치프레스",row:"바벨 로우",ohp:"오버헤드프레스",deadlift:"데드리프트"};
+var s=localStorage.getItem("sl5x5");
+var state=s?JSON.parse(s):{sessionCount:0,weights:{squat:20,bench:20,row:20,ohp:20,deadlift:60},failCount:{squat:0,bench:0,row:0,ohp:0,deadlift:0},history:[]};
+
 if(state.history.length>0){
-const total=state.history.length;
-const successCount=state.history.filter(r=>r.exercises.every(e=>e.success)).length;
-const maxSquat=Math.max(...state.history.map(r=>{const sq=r.exercises.find(e=>e.name==="squat");return sq?sq.weight:0;}));
+  var total=state.history.length;
+  var ok=state.history.filter(function(r){return r.exercises.every(function(e){return e.success;});}).length;
+  var maxSq=Math.max.apply(null,state.history.map(function(r){var sq=r.exercises.find(function(e){return e.name==="squat";});return sq?sq.weight:0;}));
+  document.getElementById("stats-area").innerHTML="<div class='stats-box'><h3>📊 나의 통계</h3><div class='stat-row'><span>총 운동 횟수</span><span class='stat-val'>"+total+"회</span></div><div class='stat-row'><span>완전 성공</span><span class='stat-val'>"+ok+"회</span></div><div class='stat-row'><span>현재 스쿼트</span><span class='stat-val'>"+state.weights.squat+"kg</span></div><div class='stat-row'><span>최고 스쿼트</span><span class='stat-val'>"+maxSq+"kg</span></div></div>";
+}
+
+var container=document.getElementById("history-list");
+if(state.history.length===0){
+  container.innerHTML="<p style='text-align:center;color:#aaa;margin-top:40px'>아직 기록이 없습니다 💪</p>";
+}else{
+  var hist=[...state.history].reverse();
+  hist.forEach(function(record){
+    var rows="";
+    record.exercises.forEach(function(ex){
+      var cls=ex.success?"success":"fail";
+      var icon=ex.success?"✅":"❌";
+      rows+="<div class='exercise-row'><span>"+NAMES[ex.name]+"</span><span class='"+cls+"'>"+icon+" "+ex.weight+"kg</span></div>";
+    });
+    container.innerHTML+="<div class='record-card'><div class='record-header'><span class='record-date'>"+record.date+"</span><span class='record-badge'>워크아웃 "+record.workout+"</span></div>"+rows+"</div>";
+  });
+}
+</script>
+</body>
+</html>const maxSquat=Math.max(...state.history.map(r=>{const sq=r.exercises.find(e=>e.name==="squat");return sq?sq.weight:0;}));
 document.getElementById("stats-area").innerHTML=`<div class="stats-box"><h3>📊 나의 통계</h3><div class="stat-row"><span>총 운동 횟수</span><span class="stat-val">${total}회</span></div><div class="stat-row"><span>완전 성공 횟수</span><span class="stat-val">${successCount}회</span></div><div class="stat-row"><span>현재 스쿼트</span><span class="stat-val">${state.weights.squat}kg</span></div><div class="stat-row"><span>최고 스쿼트</span><span class="stat-val">${maxSquat}kg</span></div></div>`;
 }
 const container=document.getElementById("history-list");
