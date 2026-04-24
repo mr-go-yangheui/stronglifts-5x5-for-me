@@ -69,9 +69,15 @@ let rows="";
 record.exercises.forEach(ex=>{
 const cls=ex.success?"success":"fail";
 const icon=ex.success?"✅":"❌";
-rows+=`<div class="exercise-row"><span>${EXERCISE_NAMES[ex.name]}</span><span class="${cls}">${icon} ${ex.weight}kg</span></div>`;
+rows+=
+`<div class=
+         "exercise-row"><span>${EXERCISE_NAMES[ex.name]}</span><span class=
+                                                                          "${cls}">${icon} ${ex.weight}kg</span></div>`;
 });
-container.innerHTML+=`<div class="record-card"><div class="record-header"><span class="record-date">${record.date}</span><span class="record-badge">워크아웃 ${record.workout}</span></div>${rows}</div>`;
+container.innerHTML+=`<div class=
+                        "record-card"><div class=
+                                                 "record-header"><span class="record-date">${record.date}</span><span class=
+                                                                                                                  "record-badge">워크아웃 ${record.workout}</span></div>${rows}</div>`;
 });
 }
 </script>
